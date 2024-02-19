@@ -199,20 +199,21 @@ void StrList_removeAt(StrList* StrList, int index);
 {
     if(StrList==NULL)
    {
-    return 0;
+    return;
    }
    int innerindex
     Node* head=StrList->_head
-        Node* temp=StrList->_head._next;
+     Node* temp=StrList->_head._next;
       while (head!=NULL)
     {
         if (strcmp(temp._data,data)&&innerindex==index)
         {
-        temp=temp._next;
-        head._next=&temp;
+          head=temp._next;
+            temp=temp._next.next;
+            continue;
         }
-        head=head->_next;
-        temp=head->_next;
+        head=head._next;
+        temp=temp._nextt;
         innerindex++;
     }
 }
@@ -239,6 +240,126 @@ int StrList_isEqual(const StrList* StrList1, const StrList* StrList2)
 }
 StrList* StrList_clone(const StrList* StrList)
 {
+        if (StrList==null)
+        {
+            return;
+        }
+
+        StrList list=StrList_alloc();
+        Node * temp=Node_alloc(StrList->_head->_data,NULL);
+        list._head=temp;
+        list._size=list._size+1;
+        Node * head=StrList->_head;
+        head=head->_next;
+        while (head!=NULL)
+        {
+         Node *temp_loclal=Node_alloc(head->_data,NULL);
+          temp._next=temp_loclal;
+          temp=temp->_next;
+          head=head->_next;
+          free(temp_loclal->_data);
+          free(temp_loclal);
+        }
+
+         free(temp->_data);
+          free(temp);
+        return &list;
+}
+
+void StrList_reverse(StrList* StrList) {
+    Node *head = StrList->_head;
+    char **arr = (char**)malloc(sizeof(char*) * StrList->_size);
     
+    if (arr == NULL) {
+        return; // Memory allocation failed
+    }
+    
+    int i = 0;
+    while (head != NULL) {
+        arr[i] = (char*)malloc(strlen(head->_data) + 1); // Allocate memory for each string
+        if (arr[i] == NULL) {
+            // Handle memory allocation failure
+            // You may need to free allocated memory here before returning
+               for (j = 0; j<i; j++) {
+        free(arr[j]);
+        }
+        free(arr);
+            return;
+        }
+        
+        strcpy(arr[i], head->_data);
+        head = head->_next;
+        i++;
+    }
+    
+    Node *head1 = StrList->_head;
+    i = StrList->_size - 1; // Start from the last index
+    while (head1 != NULL) {
+        strcpy(head1->_data, arr[i]);
+        head1 = head1->_next;
+        i--;
+    }
+    
+    // Free the allocated memory for temporary array
+    for (i = 0; i < StrList->_size; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+}
+int cmpfunc(const void *a, const void *b) {
+    return strcmp(*(char**)a, *(char**)b);
+}
+
+void StrList_sort(StrList* StrList) {
+    Node *head = StrList->_head;
+    char **arr = (char**)malloc(sizeof(char*) * StrList->_size);
+    if (arr == NULL) {
+        return; // Memory allocation failed
+    }
+    
+    int i = 0;
+    while (head != NULL) {
+        arr[i] = (char*)malloc(strlen(head->_data) + 1); // Allocate memory for each string
+        if (arr[i] == NULL) {
+            // Handle memory allocation failure
+            // You may need to free allocated memory here before returning
+            return;
+        }
+        strcpy(arr[i], head->_data);
+        head = head->_next;
+        i++;
+    }
+    if (StrList->_size != i) {
+    // Handle the mismatch in size between the linked list and arr
+    // Free allocated memory and return or take appropriate action
+    return;
+}
+    
+    qsort(arr, i, sizeof(char*), cmpfunc);
+    
+    Node *head1 = StrList->_head;
+    i = StrList->_size-1;
+    while (head1 != NULL) {
+        strcpy(head1->_data, arr[i]);
+        head1 = head1->_next;
+        i--;
+    }
+    
+    // Free the allocated memory for temporary array
+    for (i = 0; i < StrList->_size; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+}
+ 
+int StrList_isSorted(StrList* StrList)
+{
+
+    StrList * head1=StrList_alloc();
+    head1=StrList_clone(StrList);
+    StrList_sort(head1);
+    int i=StrList_isEqual(head1,StrList);
+    StrList_free(head1);
+    return i;
 }
 
